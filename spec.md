@@ -88,6 +88,8 @@ Audio requirements:
 - `id`: lowercase slug, stable forever, because it is printed on labels.
 - `name`, `lang`: required. Everything else is optional, and the UI must degrade gracefully.
 - `nickname`: optional shorter everyday word, shown smaller ("also called Fridge") with its own ▶ button.
+- `syllableTimes` / `syllableTimesSlow`: optional start times in seconds for each syllable in `audio` / `audioSlow`, e.g. `[0, 0.25, 0.5, 0.7, 0.95]`. They drive syllable highlighting and must be ascending, with one time per syllable.
+- `audio`, `audioSlow` and `image` can be filled in automatically: name a file after the item id (`public/audio/<id>.mp3` or `.m4a`, `public/audio/<id>-slow.mp3`, `public/images/<id>.webp`) and run `npm run media`.
 
 Seed items for v1: refrigerator, gas stove, heater, microwave, sink, oven, washing machine, door, window, table, chair, bed, lamp, television, sofa, toilet, bathtub, mirror, clock, fan.
 
@@ -194,3 +196,21 @@ Speech recognition / grading the child's pronunciation, user accounts, cloud syn
   - Label sizes are 1.5″, 2″ (the default), 2.5″, and 3″, and the choice is remembered in `localStorage`. Each label has a checkbox, and unticked labels don't print.
   - The adult gate came forward from M5 because CLAUDE.md requires it for `/labels`: on Home, hold ⚙ for 2 s and a progress ring fills. A plain tap or click never passes it. Typing `/labels` directly is allowed, since a child can't do that.
   - SPA fallback: `public/_redirects` for Netlify and Cloudflare Pages, plus a build-time `404.html` copy for GitHub Pages. GitHub Pages only works from a root (a custom domain or a `<user>.github.io` site), because paths assume `/`.
+- **M3 (2026-10-09)**
+  - The scanner accepts labels for the origin the app is running on and for `VITE_LABEL_ORIGIN`. Anything else counts as "foreign": the app shows a gentle toast for 2.5 s and keeps scanning. It never navigates.
+  - Tapping **Scan** on Home unlocks audio, so later scans speak automatically. Opening `/scan` directly (on reload, or from a bookmark) can't autoplay. Instead, ▶ pulses with a ripple ring that doesn't move the button.
+  - The camera stream stays open while an item is showing, and decoded frames are ignored meanwhile. `qr-scanner`'s `pause()` would shut the stream off, and on iOS that can bring the permission prompt back. "Scan again" is instant. For 1.5 s after it, the label that was just shown is ignored, so it doesn't pop straight back. The camera is released when the user leaves `/scan`.
+  - Camera errors (permission denied, insecure page, no camera, other) each get a friendly screen with advice for grown-ups, a Home button, and Try again where it helps. `qr-scanner` hides the real `getUserMedia` error, so after a failure the app retries `getUserMedia` once to find the cause.
+  - `qr-scanner` and its decoder worker load only on `/scan`, and `qrcode` loads only on `/labels`.
+  - The end-to-end scan test runs in Chromium with a fake camera that plays a generated QR video. WebKit has no fake camera.
+- **M4 (2026-10-09)**
+  - `vite-plugin-pwa` generates the service worker and precaches everything: the app shell, the lazy-loaded scanner, labels page and decoder worker, icons, and any images and audio. Any navigation falls back to the cached `index.html`, so a Camera-opened `/item/<id>` works offline in Safari too. `clientsClaim` makes the very first visit offline-ready without a reload.
+  - Updates use `registerType: 'prompt'` without `skipWaiting`. A new version activates only once the app is fully closed, or when a parent taps **Update now** in the parent menu, so it never reloads under a child.
+  - Icons are generated from one SVG with `npm run icons` (Playwright renders them) and committed in `public/icons/`: a 180 px apple-touch-icon, 192 px, 512 px, and a maskable 512 px.
+  - Parent menu: the ⚙ gate on Home now opens `/parent`, which has Print labels, the one-time iOS "Add to Home Screen" hint (dismissal remembered in `localStorage`), offline status, Update now, and a privacy note.
+- **M5 (2026-10-09)**
+  - Browse: Home has a smaller secondary **Pictures** button next to the giant Scan button. `/browse` is a grid of picture cards showing each item's `name`. An item opened from the grid shows a ⬅️ "Back to pictures" corner button in place of 🏠, and Back restores the grid's scroll position.
+  - Syllable highlighting runs only for recorded audio that has `syllableTimes`. TTS gives no reliable syllable timing, so the whole word pulses instead. Playing the nickname highlights the "also called …" text.
+  - Recorded audio: `npm run media` links files by id and warns about files that match no id. `.m4a` is accepted, so iPhone Voice Memos recordings work as-is.
+  - Animations: the picture pops in, the word rises in, and grid cards rise in staggered. All are off under `prefers-reduced-motion`.
+  - Not done in v1: a self-hosted Nunito font (the system rounded font is used) and a Lighthouse run. Lighthouse 12 also dropped the PWA category, so the "PWA ≥ 90" criterion in §13 is covered by the manifest and offline Playwright tests instead.

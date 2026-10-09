@@ -4,7 +4,7 @@ export type Cleanup = () => void;
 export type Params = Record<string, string>;
 export type View = (root: HTMLElement, params: Params) => Cleanup;
 
-export type RouteName = 'home' | 'item' | 'labels' | 'notFound';
+export type RouteName = 'home' | 'item' | 'scan' | 'browse' | 'parent' | 'labels' | 'notFound';
 export interface RouteMatch {
   name: RouteName;
   params: Params;
@@ -15,6 +15,9 @@ const ITEM_PATH = /^\/item\/([^/]+)\/?$/;
 /** Pure path → route matching. Unknown paths map to notFound. */
 export function matchRoute(pathname: string): RouteMatch {
   if (pathname === '/' || pathname === '' || pathname === '/index.html') return { name: 'home', params: {} };
+  if (pathname === '/scan' || pathname === '/scan/') return { name: 'scan', params: {} };
+  if (pathname === '/browse' || pathname === '/browse/') return { name: 'browse', params: {} };
+  if (pathname === '/parent' || pathname === '/parent/') return { name: 'parent', params: {} };
   if (pathname === '/labels' || pathname === '/labels/') return { name: 'labels', params: {} };
   const m = ITEM_PATH.exec(pathname);
   if (m) {
@@ -67,20 +70,32 @@ export function lazy(load: () => Promise<{ render: View }>): View {
 
 let navigateFn: ((path: string) => void) | undefined;
 
+/** What we keep in history.state: where the user scrolled, and whether Back should return to the grid. */
+export interface NavState {
+  scrollY?: number;
+  fromBrowse?: boolean;
+}
+
+export function navState(): NavState {
+  return (history.state as NavState | null) ?? {};
+}
+
 export function createRouter(root: HTMLElement, views: Record<RouteName, View>) {
   let cleanup: Cleanup | null = null;
+  history.scrollRestoration = 'manual';
 
   function render() {
     cleanup?.();
     root.replaceChildren();
     const { name, params } = matchRoute(location.pathname);
     cleanup = views[name](root, params);
-    window.scrollTo(0, 0);
+    window.scrollTo(0, navState().scrollY ?? 0);
   }
 
-  function go(path: string) {
+  function go(path: string, state: NavState = {}) {
     if (path === location.pathname) return;
-    history.pushState(null, '', path);
+    history.replaceState({ ...navState(), scrollY: window.scrollY }, ''); // so Back restores it
+    history.pushState(state, '', path);
     render();
   }
 
@@ -92,7 +107,7 @@ export function createRouter(root: HTMLElement, views: Record<RouteName, View>) 
     const url = new URL(a.href, location.href);
     if (url.origin !== location.origin) return;
     e.preventDefault();
-    go(url.pathname);
+    go(url.pathname, a.hasAttribute('data-from-browse') ? { fromBrowse: true } : {});
   });
   window.addEventListener('popstate', render);
 

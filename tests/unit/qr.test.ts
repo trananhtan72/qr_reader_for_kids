@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { isLocalOrigin, labelOrigin, labelUrl, QUIET_ZONE, qrPath } from '../../src/qr';
+import { isLocalOrigin, labelOrigin, labelUrl } from '../../src/origin';
+import { QUIET_ZONE, qrPath } from '../../src/qr';
 
 describe('labelOrigin', () => {
   it('prefers the configured origin, normalized', () => {

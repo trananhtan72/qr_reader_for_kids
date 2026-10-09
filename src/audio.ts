@@ -119,7 +119,10 @@ export function preload(item: Item): void {
 export interface PlayOptions {
   speed?: Speed;
   word?: Word;
-  onStart?: () => void;
+  /** Called with what is actually playing (a file, or TTS after a file failed to load). */
+  onStart?: (source: Source) => void;
+  /** Recorded files only: current playback position in seconds, every animation frame. */
+  onProgress?: (seconds: number) => void;
   onEnd?: () => void;
 }
 
@@ -136,12 +139,13 @@ export function play(item: Item, opts: PlayOptions = {}): void {
     opts.onEnd?.();
   };
   const source = chooseSource(item, speed, word);
-  opts.onStart?.();
+  opts.onStart?.(source);
   if (source.kind === 'file') {
-    playFile(source.src, my, end, () => {
+    playFile(source.src, my, end, opts.onProgress, () => {
       // Missing/undecodable file: fall back to speech.
       if (my !== token) return;
       const tts = chooseSource({ ...item, audio: undefined, audioSlow: undefined }, speed, word);
+      opts.onStart?.(tts);
       if (tts.kind === 'tts') speak(tts, my, end);
     });
   } else {
@@ -149,15 +153,38 @@ export function play(item: Item, opts: PlayOptions = {}): void {
   }
 }
 
-function playFile(src: string, my: number, end: () => void, fail: () => void) {
+function playFile(
+  src: string,
+  my: number,
+  end: () => void,
+  onProgress: ((seconds: number) => void) | undefined,
+  fail: () => void,
+) {
   const p = getPlayer();
+  // A missing file reports both an `error` event and a rejected play(); fall back only once.
+  let failed = false;
+  const failOnce = () => {
+    if (failed || my !== token) return;
+    failed = true;
+    p.onerror = null;
+    fail();
+  };
   if (!p.src.endsWith(src)) p.src = src;
   p.currentTime = 0;
   p.onended = end;
-  p.onerror = fail;
-  p.play().catch(() => {
-    if (my === token) fail();
-  });
+  p.onerror = failOnce;
+  p.play().then(
+    () => {
+      if (!onProgress) return;
+      const tick = () => {
+        if (my !== token || p.paused) return;
+        onProgress(p.currentTime);
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    },
+    failOnce,
+  );
 }
 
 function speak(source: Extract<Source, { kind: 'tts' }>, my: number, end: () => void) {

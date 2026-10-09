@@ -10,6 +10,10 @@ export interface Item {
   image?: string;
   audio?: string;
   audioSlow?: string;
+  /** Start time (s) of each syllable in `audio`, for highlighting. Same length as `syllables`. */
+  syllableTimes?: number[];
+  /** Same, for `audioSlow`. */
+  syllableTimesSlow?: number[];
 }
 
 /** Lowercase slug: letters, digits, single hyphens. Printed on labels, so stable forever. */
@@ -54,6 +58,18 @@ export function validateItems(data: unknown): string[] {
       !(Array.isArray(item.syllables) && item.syllables.every((s) => typeof s === 'string' && s !== ''))
     ) {
       errors.push(`${label}: syllables must be an array of non-empty strings if present`);
+    }
+    for (const key of ['syllableTimes', 'syllableTimesSlow'] as const) {
+      const times = item[key];
+      if (times === undefined) continue;
+      const syllables = Array.isArray(item.syllables) ? item.syllables : [];
+      const ascending =
+        Array.isArray(times) &&
+        times.every((n, j) => typeof n === 'number' && Number.isFinite(n) && n >= 0 && (j === 0 || n > times[j - 1]));
+      if (!ascending) errors.push(`${label}: ${key} must be ascending numbers ≥ 0 (seconds)`);
+      else if (times.length !== syllables.length) errors.push(`${label}: ${key} needs one time per syllable`);
+      else if (item[key === 'syllableTimes' ? 'audio' : 'audioSlow'] === undefined)
+        errors.push(`${label}: ${key} only makes sense with ${key === 'syllableTimes' ? 'audio' : 'audioSlow'}`);
     }
   });
   return errors;

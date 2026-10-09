@@ -9,7 +9,9 @@
     "preview": "vite preview --host",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "validate": "tsx scripts/validate-items.ts"
+    "validate": "tsx scripts/validate-items.ts",
+    "icons": "tsx scripts/make-icons.ts",
+    "media": "tsx scripts/link-media.ts && npm run validate"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.0",
@@ -18,9 +20,11 @@
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",
+    "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.0.3"
   },
   "dependencies": {
+    "qr-scanner": "^1.4.2",
     "qrcode": "^1.5.4"
   }
 }

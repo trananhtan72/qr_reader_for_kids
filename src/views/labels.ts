@@ -1,7 +1,8 @@
 import { h } from '../dom';
 import { t } from '../i18n';
 import { items, type Item } from '../items';
-import { isLocalOrigin, labelOrigin, labelUrl, qrPath } from '../qr';
+import { isLocalOrigin, labelOrigin, labelUrl } from '../origin';
+import { qrPath } from '../qr';
 import type { Cleanup } from '../router';
 
 const SIZES = [1.5, 2, 2.5, 3]; // inches
@@ -69,7 +70,7 @@ export function render(root: HTMLElement): Cleanup {
       h(
         'header',
         { class: 'controls no-print' },
-        h('a', { class: 'btn-corner static', href: '/', 'aria-label': t.home }, h('span', { 'aria-hidden': 'true' }, '🏠')),
+        h('a', { class: 'btn-corner static', href: '/parent', 'aria-label': t.back }, h('span', { 'aria-hidden': 'true' }, '⬅️')),
         h('h1', { class: 'title' }, t.labelsTitle),
         h('p', {}, `${t.labelsOrigin} `, h('code', { 'data-testid': 'label-origin' }, origin)),
         isLocalOrigin(origin) ? h('p', { class: 'warning', role: 'note' }, '⚠️ ', t.labelsLocalWarning) : null,

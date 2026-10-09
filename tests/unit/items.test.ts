@@ -26,6 +26,15 @@ describe('validateItems', () => {
     expect(validateItems([{ ...ok, id }]).join()).toMatch(/id must be/);
   });
 
+  it('validates syllable timings', () => {
+    const timed = { ...ok, syllables: ['re', 'frig'], audio: '/audio/fridge.mp3' };
+    expect(validateItems([{ ...timed, syllableTimes: [0, 0.3] }])).toEqual([]);
+    expect(validateItems([{ ...timed, syllableTimes: [0.3, 0.1] }]).join()).toMatch(/ascending/);
+    expect(validateItems([{ ...timed, syllableTimes: [-1, 0.1] }]).join()).toMatch(/ascending/);
+    expect(validateItems([{ ...timed, syllableTimes: [0] }]).join()).toMatch(/one time per syllable/);
+    expect(validateItems([{ ...timed, syllableTimesSlow: [0, 0.5] }]).join()).toMatch(/only makes sense with audioSlow/);
+  });
+
   it('rejects duplicate ids', () => {
     expect(validateItems([ok, ok]).join()).toMatch(/duplicate/);
   });

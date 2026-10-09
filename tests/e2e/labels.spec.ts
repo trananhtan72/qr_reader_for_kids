@@ -38,5 +38,7 @@ test('the ⚙ gate on Home needs a press-and-hold', async ({ page }) => {
   await page.mouse.down();
   await page.waitForTimeout(2300);
   await page.mouse.up();
+  await expect(page).toHaveURL(/\/parent$/);
+  await page.getByRole('link', { name: 'Print labels' }).click();
   await expect(page).toHaveURL(/\/labels$/);
 });

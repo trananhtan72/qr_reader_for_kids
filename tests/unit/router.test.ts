@@ -11,6 +11,12 @@ describe('matchRoute', () => {
     expect(matchRoute('/item/washing-machine/')).toEqual({ name: 'item', params: { id: 'washing-machine' } });
   });
 
+  it('matches /scan, /browse and /parent', () => {
+    expect(matchRoute('/scan').name).toBe('scan');
+    expect(matchRoute('/browse').name).toBe('browse');
+    expect(matchRoute('/parent/').name).toBe('parent');
+  });
+
   it('matches /labels', () => {
     expect(matchRoute('/labels')).toEqual({ name: 'labels', params: {} });
     expect(matchRoute('/labels/')).toEqual({ name: 'labels', params: {} });

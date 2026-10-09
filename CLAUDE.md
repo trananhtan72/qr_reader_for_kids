@@ -15,6 +15,8 @@ A mobile-first PWA that helps young children learn household object names. QR la
 - `npm test` — Vitest unit tests
 - `npm run test:e2e` — Playwright (WebKit) smoke tests
 - `npm run validate` — runs `scripts/validate-items.ts`
+- `npm run media` — link `public/audio/<id>.mp3|m4a` and `public/images/<id>.webp` into `items.json`, then validate
+- `npm run icons` — regenerate `public/icons/*.png` from the SVG in `scripts/make-icons.ts`
 
 If a script doesn't exist yet when you need it, add it to `package.json`.
 

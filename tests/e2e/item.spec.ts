@@ -6,6 +6,7 @@ test('item page shows the word and a play button', async ({ page }) => {
   await expect(page.getByText('re · frig · er · a · tor')).toBeVisible();
   const hear = page.getByRole('button', { name: 'Hear it' });
   await expect(hear).toBeVisible();
+  await expect(hear).toHaveClass(/invite/); // no autoplay on a direct visit: invite a tap
   await expect(page.getByRole('button', { name: 'Slowly' })).toBeInViewport();
   const box = await hear.boundingBox();
   expect(box!.height).toBeGreaterThanOrEqual(96);
