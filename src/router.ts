@@ -4,7 +4,7 @@ export type Cleanup = () => void;
 export type Params = Record<string, string>;
 export type View = (root: HTMLElement, params: Params) => Cleanup;
 
-export type RouteName = 'home' | 'item' | 'notFound';
+export type RouteName = 'home' | 'item' | 'labels' | 'notFound';
 export interface RouteMatch {
   name: RouteName;
   params: Params;
@@ -15,6 +15,7 @@ const ITEM_PATH = /^\/item\/([^/]+)\/?$/;
 /** Pure path → route matching. Unknown paths map to notFound. */
 export function matchRoute(pathname: string): RouteMatch {
   if (pathname === '/' || pathname === '' || pathname === '/index.html') return { name: 'home', params: {} };
+  if (pathname === '/labels' || pathname === '/labels/') return { name: 'labels', params: {} };
   const m = ITEM_PATH.exec(pathname);
   if (m) {
     let id: string;
@@ -46,6 +47,26 @@ export function itemIdFromUrl(text: string, origin: string): string | null {
   return m[1];
 }
 
+/** Wraps a dynamically imported view so its code (and deps) load only when visited. */
+export function lazy(load: () => Promise<{ render: View }>): View {
+  return (root, params) => {
+    let cleanup: Cleanup | null = null;
+    let cancelled = false;
+    load().then(
+      (mod) => {
+        if (!cancelled) cleanup = mod.render(root, params);
+      },
+      (err) => console.error('Failed to load view', err),
+    );
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
+  };
+}
+
+let navigateFn: ((path: string) => void) | undefined;
+
 export function createRouter(root: HTMLElement, views: Record<RouteName, View>) {
   let cleanup: Cleanup | null = null;
 
@@ -57,7 +78,7 @@ export function createRouter(root: HTMLElement, views: Record<RouteName, View>) 
     window.scrollTo(0, 0);
   }
 
-  function navigate(path: string) {
+  function go(path: string) {
     if (path === location.pathname) return;
     history.pushState(null, '', path);
     render();
@@ -71,9 +92,17 @@ export function createRouter(root: HTMLElement, views: Record<RouteName, View>) 
     const url = new URL(a.href, location.href);
     if (url.origin !== location.origin) return;
     e.preventDefault();
-    navigate(url.pathname);
+    go(url.pathname);
   });
   window.addEventListener('popstate', render);
 
-  return { start: render, navigate };
+  navigateFn = go;
+  return { start: render, navigate: go };
 }
+
+/** In-app navigation for views (set once the router starts). */
+export function navigate(path: string): void {
+  if (navigateFn) navigateFn(path);
+  else location.assign(path);
+}
+

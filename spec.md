@@ -188,3 +188,9 @@ Speech recognition / grading the child's pronunciation, user accounts, cloud syn
   - If a recorded audio file fails to load or play, playback falls back to TTS.
   - Malformed item paths (`/item`, `/item/a/b`) and unknown paths show the same friendly "I don't know this one yet" screen as unknown ids.
   - Home is a placeholder until M3 (Scan button) and M5 (browse grid).
+- **M2 (2026-10-09)**
+  - Label QR codes encode `VITE_LABEL_ORIGIN + /item/<id>` (a build-time env var, see `.env.example`). If it's unset, they use the origin the page is open at. `/labels` shows the origin it encodes, with a warning for http, localhost, LAN-IP, or `.local` origins. In M3 the in-app scanner must accept the same origin.
+  - QR codes use error-correction level M and are drawn as inline SVG on the device. Seed URLs stay at version 4 or below, so they are readable at 1.5″.
+  - Label sizes are 1.5″, 2″ (the default), 2.5″, and 3″, and the choice is remembered in `localStorage`. Each label has a checkbox, and unticked labels don't print.
+  - The adult gate came forward from M5 because CLAUDE.md requires it for `/labels`: on Home, hold ⚙ for 2 s and a progress ring fills. A plain tap or click never passes it. Typing `/labels` directly is allowed, since a child can't do that.
+  - SPA fallback: `public/_redirects` for Netlify and Cloudflare Pages, plus a build-time `404.html` copy for GitHub Pages. GitHub Pages only works from a root (a custom domain or a `<user>.github.io` site), because paths assume `/`.

@@ -11,6 +11,11 @@ describe('matchRoute', () => {
     expect(matchRoute('/item/washing-machine/')).toEqual({ name: 'item', params: { id: 'washing-machine' } });
   });
 
+  it('matches /labels', () => {
+    expect(matchRoute('/labels')).toEqual({ name: 'labels', params: {} });
+    expect(matchRoute('/labels/')).toEqual({ name: 'labels', params: {} });
+  });
+
   it('passes unknown ids to the item view (it shows the friendly page)', () => {
     expect(matchRoute('/item/xyz')).toEqual({ name: 'item', params: { id: 'xyz' } });
   });
