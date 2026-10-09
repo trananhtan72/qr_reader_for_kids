@@ -1,0 +1,173 @@
+:root {
+  /* Rounded system fonts: SF Pro Rounded on iOS/macOS. A self-hosted Nunito can slot in here later. */
+  --font: ui-rounded, 'SF Pro Rounded', 'Nunito', 'Varela Round', system-ui, -apple-system, sans-serif;
+  --bg: #fff8e7;
+  --surface: #ffffff;
+  --ink: #2b2140;
+  --ink-soft: #5a4f6e;
+  --primary: #e8551f; /* white bold text ≥ 4:1 (AA large) */
+  --primary-ink: #ffffff;
+  --secondary: #3a86ff;
+  --secondary-ink: #ffffff;
+  --highlight: #ffd166;
+  --radius: 28px;
+  --tap: 64px;
+  --tap-main: 96px;
+  --gutter: 16px;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding:
+    calc(env(safe-area-inset-top) + var(--gutter))
+    calc(env(safe-area-inset-right) + var(--gutter))
+    calc(env(safe-area-inset-bottom) + var(--gutter))
+    calc(env(safe-area-inset-left) + var(--gutter));
+  display: flex;
+}
+
+.screen {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  text-align: center;
+}
+.screen.center { justify-content: center; }
+.screen.item { justify-content: center; gap: 12px; padding-top: calc(var(--tap) + 4px); }
+
+.picture {
+  width: min(60vw, 32vh, 320px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 0 rgba(43, 33, 64, 0.08);
+  overflow: hidden;
+}
+.picture img { width: 100%; height: 100%; object-fit: cover; }
+.picture .emoji { font-size: min(36vw, 19vh, 200px); line-height: 1; }
+
+.word {
+  margin: 8px 0 0;
+  font-size: clamp(2.75rem, 12vw, 7rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  border-radius: 20px;
+  padding: 0 12px;
+  transition: background-color 200ms ease;
+}
+.word.speaking {
+  background: var(--highlight);
+  animation: pulse 700ms ease-in-out infinite alternate;
+}
+
+.syllables {
+  margin: 0;
+  font-size: clamp(1.25rem, 6vw, 2.25rem);
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.nickname {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: clamp(1.1rem, 5vw, 1.75rem);
+  color: var(--ink-soft);
+}
+
+.title { margin: 0; font-size: clamp(2rem, 9vw, 4rem); font-weight: 800; line-height: 1.1; }
+.hint { margin: 0; font-size: clamp(1.1rem, 5vw, 1.75rem); color: var(--ink-soft); }
+
+.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-width: var(--tap);
+  min-height: var(--tap);
+  padding: 0 28px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 800;
+  font-size: clamp(1.25rem, 6vw, 2rem);
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  box-shadow: 0 6px 0 rgba(43, 33, 64, 0.18);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(43, 33, 64, 0.18); }
+.btn:focus-visible, .btn-corner:focus-visible { outline: 4px solid var(--secondary); outline-offset: 4px; }
+.btn .icon { font-size: 1.2em; line-height: 1; }
+
+.btn-primary { background: var(--primary); color: var(--primary-ink); min-height: var(--tap-main); flex: 0 1 260px; padding: 0 28px; }
+.btn-secondary { background: var(--secondary); color: var(--secondary-ink); }
+.btn-round .icon { font-size: 2.6rem; }
+.btn-round { flex: none; padding: 0; width: var(--tap-main); height: var(--tap-main); }
+.btn-small { background: var(--surface); color: var(--ink); padding: 0; width: var(--tap); }
+.btn.active { animation: bounce 500ms ease; }
+
+.btn-corner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--tap);
+  height: var(--tap);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface);
+  font-size: 1.75rem;
+  text-decoration: none;
+  box-shadow: 0 4px 0 rgba(43, 33, 64, 0.12);
+}
+
+@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.06); } }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-8px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* iPad / larger screens */
+@media (min-width: 768px) {
+  :root { --gutter: 32px; }
+}

@@ -1,0 +1,22 @@
+[
+  { "id": "fridge", "name": "Refrigerator", "nickname": "Fridge", "lang": "en-US", "syllables": ["re", "frig", "er", "a", "tor"], "emoji": "🧊" },
+  { "id": "stove", "name": "Gas stove", "nickname": "Stove", "lang": "en-US", "syllables": ["gas", "stove"], "emoji": "🔥" },
+  { "id": "heater", "name": "Heater", "lang": "en-US", "syllables": ["heat", "er"], "emoji": "♨️" },
+  { "id": "microwave", "name": "Microwave", "lang": "en-US", "syllables": ["mi", "cro", "wave"], "emoji": "🍿" },
+  { "id": "sink", "name": "Sink", "lang": "en-US", "syllables": ["sink"], "emoji": "🚰" },
+  { "id": "oven", "name": "Oven", "lang": "en-US", "syllables": ["ov", "en"], "emoji": "🥧" },
+  { "id": "washing-machine", "name": "Washing machine", "nickname": "Washer", "lang": "en-US", "syllables": ["wash", "ing", "ma", "chine"], "emoji": "🫧" },
+  { "id": "door", "name": "Door", "lang": "en-US", "syllables": ["door"], "emoji": "🚪" },
+  { "id": "window", "name": "Window", "lang": "en-US", "syllables": ["win", "dow"], "emoji": "🪟" },
+  { "id": "table", "name": "Table", "lang": "en-US", "syllables": ["ta", "ble"], "emoji": "🍽️" },
+  { "id": "chair", "name": "Chair", "lang": "en-US", "syllables": ["chair"], "emoji": "🪑" },
+  { "id": "bed", "name": "Bed", "lang": "en-US", "syllables": ["bed"], "emoji": "🛏️" },
+  { "id": "lamp", "name": "Lamp", "lang": "en-US", "syllables": ["lamp"], "emoji": "💡" },
+  { "id": "tv", "name": "Television", "nickname": "TV", "lang": "en-US", "syllables": ["tel", "e", "vi", "sion"], "emoji": "📺" },
+  { "id": "sofa", "name": "Sofa", "nickname": "Couch", "lang": "en-US", "syllables": ["so", "fa"], "emoji": "🛋️" },
+  { "id": "toilet", "name": "Toilet", "lang": "en-US", "syllables": ["toi", "let"], "emoji": "🚽" },
+  { "id": "bathtub", "name": "Bathtub", "nickname": "Tub", "lang": "en-US", "syllables": ["bath", "tub"], "emoji": "🛁" },
+  { "id": "mirror", "name": "Mirror", "lang": "en-US", "syllables": ["mir", "ror"], "emoji": "🪞" },
+  { "id": "clock", "name": "Clock", "lang": "en-US", "syllables": ["clock"], "emoji": "🕰️" },
+  { "id": "fan", "name": "Fan", "lang": "en-US", "syllables": ["fan"], "emoji": "🌀" }
+]
