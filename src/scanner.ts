@@ -1,16 +1,26 @@
 import QrScanner from 'qr-scanner';
-import { getItem, type Item } from './items';
+import { getItem, ID_PATTERN, type Item } from './items';
 import { labelOrigin } from './origin';
 import { itemIdFromUrl } from './router';
 
 export type ScanOutcome =
   | { kind: 'item'; item: Item }
   | { kind: 'unknown'; id: string } // our label, but an id this build doesn't know
-  | { kind: 'foreign' }; // anything else: other sites, plain text, …
+  | { kind: 'foreign' }; // anything else: other sites, unknown plain text, …
 
 /** Origins whose labels count as "ours": where the app runs, plus the origin labels are printed with. */
 export function appOrigins(configured: string | undefined, current: string): string[] {
   return [...new Set([current, labelOrigin(configured, current)])];
+}
+
+/**
+ * Plain-text label (e.g. from a sticker printer): the item id itself, forgiving case,
+ * surrounding whitespace, and spaces/underscores instead of hyphens ("Washing Machine").
+ * Returns a candidate id, or null if the text can't be one.
+ */
+export function idFromPlainText(text: string): string | null {
+  const id = text.trim().toLowerCase().replace(/[\s_]+/g, '-');
+  return ID_PATTERN.test(id) ? id : null;
 }
 
 /** Pure: decide what a decoded QR payload means. Never returns a URL to open. */
@@ -22,7 +32,11 @@ export function classifyScan(text: string, origins: readonly string[], lookup = 
       return item ? { kind: 'item', item } : { kind: 'unknown', id };
     }
   }
-  return { kind: 'foreign' };
+  // Plain text counts only when it names a known item. Anything else (serial numbers,
+  // Wi-Fi codes, random words) could be someone else's code, so it stays "foreign".
+  const id = idFromPlainText(text);
+  const item = id ? lookup(id) : undefined;
+  return item ? { kind: 'item', item } : { kind: 'foreign' };
 }
 
 export type CameraError = 'insecure' | 'denied' | 'no-camera' | 'other';

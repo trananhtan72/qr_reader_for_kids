@@ -344,6 +344,7 @@ button.btn-corner { border: 0; padding: 0; font: inherit; font-size: 1.75rem; cu
   max-width: 100%;
 }
 .label-emoji { margin-right: 0.2em; }
+.label-id { position: absolute; bottom: 4px; right: 8px; font-size: 0.75rem; color: var(--ink-soft); }
 
 @media print {
   @page { margin: 0.4in; }

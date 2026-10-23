@@ -34,7 +34,7 @@ If a script doesn't exist yet when you need it, add it to `package.json`.
 
 - No analytics, tracking, ads, accounts, or third-party network requests at runtime. Self-host fonts, images, and audio. No CDN links.
 - Camera frames stay on-device. Never upload, store, or log them.
-- The scanner acts only on URLs matching this app's origin and the `/item/<id>` pattern. Never `window.open` or navigate to scanned external URLs.
+- The scanner acts only on URLs matching this app's origin and the `/item/<id>` pattern, or on plain text that is exactly a known item id (case, spaces, and `_` are forgiven; used for sticker-printer labels). Never `window.open` or navigate to scanned external URLs.
 - No external links on child-facing screens. Parent features (`/labels`, settings) sit behind the press-and-hold adult gate.
 - Item `id`s are printed on physical labels. **Never rename or remove an existing id.** Add new ones instead.
 

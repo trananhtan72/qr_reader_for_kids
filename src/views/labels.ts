@@ -23,7 +23,14 @@ export function render(root: HTMLElement): Cleanup {
 
   for (const item of items) {
     const box = h('input', { type: 'checkbox', class: 'no-print', checked: true, 'aria-label': item.name });
-    const label = h('label', { class: 'label' }, box, qrSvg(labelUrl(origin, item.id)), labelWord(item));
+    const label = h(
+      'label',
+      { class: 'label' },
+      box,
+      qrSvg(labelUrl(origin, item.id)),
+      labelWord(item),
+      h('code', { class: 'label-id no-print' }, item.id), // plain-text code for sticker printers
+    );
     box.addEventListener('change', () => {
       label.classList.toggle('skip', !box.checked);
       updateCount();
@@ -84,6 +91,7 @@ export function render(root: HTMLElement): Cleanup {
         count,
         button(`🖨️ ${t.print}`, 'btn-primary', () => window.print()),
         h('p', { class: 'muted' }, t.printTip),
+        h('p', { class: 'muted' }, t.plainTextTip),
       ),
       sheet,
     ),

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { appOrigins, cameraErrorKind, classifyScan } from '../../src/scanner';
+import { appOrigins, cameraErrorKind, classifyScan, idFromPlainText } from '../../src/scanner';
 
 const here = 'https://kids.example';
 
@@ -31,8 +31,29 @@ describe('classifyScan', () => {
     expect(classifyScan(`${here}/item/spaceship`, [here])).toEqual({ kind: 'unknown', id: 'spaceship' });
   });
 
+  it.each(['fridge', ' Fridge\n', 'TV', 'washing-machine', 'Washing Machine', 'washing_machine'])(
+    'accepts plain-text id %j (sticker printers)',
+    (text) => {
+      expect(classifyScan(text, [here]).kind).toBe('item');
+    },
+  );
+
+  it('maps plain text to the right item', () => {
+    const r = classifyScan('Washing machine', [here]);
+    expect(r.kind === 'item' && r.item.id).toBe('washing-machine');
+  });
+
+  it.each(['spaceship', 'frige', 'fridge please', 'Refrigerator', '12345', 'fridge!'])(
+    'treats unknown plain text %j as foreign, not as an unknown label',
+    (text) => {
+      expect(classifyScan(text, [here])).toEqual({ kind: 'foreign' });
+    },
+  );
+
   it.each([
     'https://evil.example/item/fridge',
+    'https://evil.example/fridge',
+    'fridge://x',
     `${here}.evil.com/item/fridge`,
     `${here}/labels`,
     `${here}/`,
@@ -53,5 +74,17 @@ describe('cameraErrorKind', () => {
     expect(cameraErrorKind(err('NotFoundError'))).toBe('no-camera');
     expect(cameraErrorKind('Camera not found.')).toBe('no-camera');
     expect(cameraErrorKind(err('NotReadableError'))).toBe('other');
+  });
+});
+
+describe('idFromPlainText', () => {
+  it('normalizes case, whitespace and separators', () => {
+    expect(idFromPlainText('  Washing   Machine ')).toBe('washing-machine');
+    expect(idFromPlainText('GAS_STOVE')).toBe('gas-stove');
+  });
+  it('rejects text that cannot be an id', () => {
+    expect(idFromPlainText('')).toBeNull();
+    expect(idFromPlainText('a/b')).toBeNull();
+    expect(idFromPlainText('https://kids.example/item/fridge')).toBeNull();
   });
 });

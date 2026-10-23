@@ -37,6 +37,7 @@ Key iOS constraints the design must respect:
 2. A full-screen camera view appears with a friendly frame overlay.
 3. When it decodes a URL from this app, it extracts `<id>` and shows the item page **in place**, without navigating away. It also plays the audio automatically if audio is already unlocked.
 4. A big "Scan again" button goes back to the camera. QR codes from other sites are ignored, with a gentle "That's not one of our labels" message. The app never opens arbitrary URLs.
+5. Plain-text QR codes are also accepted when the text is a known item id (e.g. `fridge`, `Washing machine`), so labels can come from any sticker printer. These work only in the in-app scanner: the iPhone Camera app can't open the app from plain text.
 
 ### 4.3 Item page
 - Large photo or illustration (emoji fallback if no image).
@@ -109,7 +110,7 @@ Keep `lang` per item and keep all UI strings in one `src/i18n.ts` file, so a sec
 - No accounts, no analytics, no ads, no third-party network calls at runtime. All assets are self-hosted.
 - Camera frames are processed on-device only and never stored or sent anywhere.
 - No external links reachable from child-facing screens. The parent menu sits behind a simple adult gate (e.g. "press and hold for 2 seconds").
-- The scanner only acts on URLs whose origin and path match this app.
+- The scanner only acts on URLs whose origin and path match this app, or on plain text that exactly names a known item id. It never opens anything it scans.
 
 ## 9. Design guidelines
 
@@ -214,3 +215,8 @@ Speech recognition / grading the child's pronunciation, user accounts, cloud syn
   - Recorded audio: `npm run media` links files by id and warns about files that match no id. `.m4a` is accepted, so iPhone Voice Memos recordings work as-is.
   - Animations: the picture pops in, the word rises in, and grid cards rise in staggered. All are off under `prefers-reduced-motion`.
   - Not done in v1: a self-hosted Nunito font (the system rounded font is used) and a Lighthouse run. Lighthouse 12 also dropped the PWA category, so the "PWA ≥ 90" criterion in §13 is covered by the manifest and offline Playwright tests instead.
+- **Plain-text labels (2026-10-23)**
+  - Requested so labels can be printed on any sticker printer. The scanner also accepts a QR code whose text is an item id. Matching is case-insensitive and trims surrounding whitespace, and spaces or underscores count as hyphens, so `Washing Machine` matches `washing-machine`.
+  - Only known ids match. Item names (`Refrigerator`) don't match, because names aren't promised to stay stable the way ids are. Any other plain text (typos, serial numbers, Wi-Fi codes) is "foreign" and gets the gentle toast, not the "I don't know this one yet" page.
+  - Limitation: the stock iPhone Camera app only offers to open URLs, so plain-text stickers need the in-app Scan button (§4.2), not the zero-install path (§4.1).
+  - `/labels` shows each item's id on screen (not printed) and a tip explaining what to put in a sticker-printer QR code.

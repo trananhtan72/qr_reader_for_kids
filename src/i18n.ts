@@ -45,6 +45,8 @@ export const t = {
   labelsOrigin: 'Codes open:',
   labelsLocalWarning:
     'This is a local address. Labels printed now will only work on this network, while this computer is serving the app. Set VITE_LABEL_ORIGIN to your deployed address before printing for real.',
+  plainTextTip:
+    'Using your own sticker printer? Make a QR code containing just the word under each label below (e.g. fridge). Those stickers work with the Scan button in this app, but not with the iPhone Camera app.',
   labelSize: 'Label size',
   inches: (n: number) => `${n}″ × ${n}″`,
   selectAll: 'Select all',
